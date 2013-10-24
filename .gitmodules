@@ -1,0 +1,4 @@
+[submodule "deps/libuv"]
+	path = deps/libuv
+	url = git@github.com:joyent/libuv.git
+  branch = v0.10
