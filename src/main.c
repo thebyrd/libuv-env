@@ -1,15 +1,25 @@
+/**
+ * GET bowery.io and print the result.
+ * In node: require('net').connect(80, 'bowery.io').pipe(process.stdout)
+ *
+ * This is from this talk on libuv:
+ * https://www.youtube.com/watch?feature=player_embedded&v=nGn60vDSxQ4
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <uv.h>
 
 
-
+/**
+ * noop cuz yolo
+ */
 void
-after_write () {
-
-}
+after_write () {}
 
 
+/**
+ * Creates a buffer.
+ */
 uv_buf_t
 on_alloc (uv_handle_t* handle, size_t suggested_size) {
   uv_buf_t buf;
@@ -20,11 +30,20 @@ on_alloc (uv_handle_t* handle, size_t suggested_size) {
   return buf;
 }
 
+
+/**
+ * Frees the request handle (watcher) once the request is closed.
+ */
 void
 on_close (uv_handle_t *handle) {
   free(handle);
 }
 
+
+/**
+ * If the response is not the end of the file then write it to stdout.
+ * Otherwise close the handle.
+ */
 void
 on_read (uv_stream_t* tcp_handle, ssize_t nread, uv_buf_t buf) {
   if (nread < 0) {
@@ -43,6 +62,10 @@ on_read (uv_stream_t* tcp_handle, ssize_t nread, uv_buf_t buf) {
 }
 
 
+
+/**
+ * Write the request body to the connection.
+ */
 void
 after_connect (uv_connect_t * connect_req, int status) {
   uv_write_t* write_req;
@@ -65,6 +88,10 @@ after_connect (uv_connect_t * connect_req, int status) {
 }
 
 
+/**
+ * After the address is resolved, put after_connect as a callback on the tcp_handle
+ * to execute once the connection is made.
+ */
 void
 after_getaddrinfo (uv_getaddrinfo_t* gai_req, int status, struct addrinfo* ai) {
   uv_tcp_t* tcp_handle;
@@ -83,22 +110,17 @@ after_getaddrinfo (uv_getaddrinfo_t* gai_req, int status, struct addrinfo* ai) {
 }
 
 
-
+/**
+ * Makes a GET to bowery.io and prints the result in the terminal.
+ */
 int
 main (int argc, char* argv[]) {
-  // uv_loop_t *loop = uv_loop_new();
-
-  // printf("Now quititng.\n");
-  // uv_run(loop, UV_RUN_DEFAULT);
   uv_getaddrinfo_t* gai_req = malloc(sizeof(uv_getaddrinfo_t));
 
-  uv_getaddrinfo(uv_default_loop(),
-                gai_req,
-                after_getaddrinfo,
-                "bowery.io",
-                "80",
-                NULL);
+  // use libuv to resolve the DNS address and pop it on the event loop
+  uv_getaddrinfo(uv_default_loop(), gai_req, after_getaddrinfo, "bowery.io", "80", NULL);
 
+  // start the event loop.
   uv_run(uv_default_loop(), UV_RUN_DEFAULT);
 
   return 0;
