@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
 #include <uv.h>
 
 uv_loop_t *loop;
@@ -35,6 +37,18 @@ main (int argc, char* args[]) {
     child_args[i] = args[i + 1];
     i--;
   }
+
+  options.stdio_count = 3;
+  uv_stdio_container_t child_stdio[3];
+  
+  child_stdio[0].flags = UV_IGNORE; // stdin
+  
+  child_stdio[1].flags = UV_INHERIT_FD; // stdout
+  child_stdio[1].data.fd = 1;
+
+  child_stdio[2].flags = UV_INHERIT_FD;
+  child_stdio[2].data.fd = 2;
+  options.stdio = child_stdio;
 
   options.exit_cb = on_exit;
   options.file = child_args[0];
