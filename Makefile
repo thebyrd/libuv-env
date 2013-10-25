@@ -2,7 +2,7 @@
 
 OBJS += src/main.o
 
-CFLAGS += -g -Wall -Ideps/libuv/include -Iinclude
+CFLAGS += -std=c99 -g -Wall -Ideps/libuv/include -Iinclude
 
 uname_S=$(shell uname -s)
 
